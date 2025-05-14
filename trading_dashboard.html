@@ -1,0 +1,119 @@
+# Menyimpan ulang file dashboard sebagai file HTML untuk diunduh
+file_path = "/mnt/data/trading_dashboard.html"
+
+html_content = """
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Trading Plan Interaktif</title>
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; background-color: #f4f6f8; padding: 20px; }
+    table { width: 100%; border-collapse: collapse; background: #fff; box-shadow: 0 0 10px rgba(0,0,0,0.1); margin-bottom: 40px; }
+    th, td { padding: 12px; text-align: center; border: 1px solid #ddd; }
+    th { background-color: #2f6f91; color: white; }
+    .gain { color: green; }
+    .loss { color: red; }
+    #chart_div { width: 100%; height: 500px; }
+  </style>
+  <script>
+    async function fetchPrice(ticker) {
+      const url = `https://yahoo-finance15.p.rapidapi.com/api/yahoo/qu/quote/${ticker}.JK`;
+      const options = {
+        method: 'GET',
+        headers: {
+          'X-RapidAPI-Key': '74250eefafmsh4261da38c4e5f5cp14aa2fjsn816f1b51ede7',
+          'X-RapidAPI-Host': 'yahoo-finance15.p.rapidapi.com'
+        }
+      };
+      try {
+        const response = await fetch(url, options);
+        const data = await response.json();
+        return data.price.regularMarketPrice;
+      } catch (error) {
+        console.error('Fetch error:', error);
+        return '-';
+      }
+    }
+
+    async function updatePrices() {
+      const tickers = ['PANI', 'CBDK', 'ARTO', 'SGER', 'DRMA', 'IFSH', 'BMTR', 'DILD', 'GJTL', 'CFIN', 'ABMM'];
+      for (const ticker of tickers) {
+        const price = await fetchPrice(ticker);
+        const cell = document.getElementById(`price-${ticker}`);
+        if (cell) cell.textContent = price;
+      }
+    }
+
+    window.onload = function() {
+      google.charts.load('current', {'packages':['corechart']});
+      google.charts.setOnLoadCallback(drawChart);
+      updatePrices();
+    }
+
+    function drawChart() {
+      const data = google.visualization.arrayToDataTable([
+        ['Saham', 'Target Profit'],
+        ['PANI', 16500],
+        ['CBDK', 10200],
+        ['ARTO', 2850],
+        ['SGER', 525],
+        ['DRMA', 1470],
+        ['IFSH', 1215],
+        ['BMTR', 210],
+        ['DILD', 219],
+        ['GJTL', 1598],
+        ['CFIN', 480],
+        ['ABMM', 4620]
+      ]);
+
+      const options = {
+        title: 'Target Profit Saham',
+        hAxis: {title: 'Saham'},
+        vAxis: {title: 'Harga (Rp)'},
+        legend: 'none',
+        colors: ['#2f6f91']
+      };
+
+      const chart = new google.visualization.ColumnChart(document.getElementById('chart_div'));
+      chart.draw(data, options);
+    }
+  </script>
+</head>
+<body>
+  <h2>Dashboard Trading Plan Interaktif (Live Harga)</h2>
+  <div id="chart_div"></div>
+  <table>
+    <thead>
+      <tr>
+        <th>Saham</th>
+        <th>Harga Saat Ini (Rp)</th>
+        <th>Target Profit (Rp)</th>
+        <th>Stop Loss (Rp)</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>PANI</td><td id="price-PANI">Loading...</td><td>16.500</td><td>9.900</td><td class="gain">Hold</td></tr>
+      <tr><td>CBDK</td><td id="price-CBDK">Loading...</td><td>10.200</td><td>6.120</td><td class="gain">Hold</td></tr>
+      <tr><td>ARTO</td><td id="price-ARTO">Loading...</td><td>2.850</td><td>1.710</td><td class="gain">Buy</td></tr>
+      <tr><td>SGER</td><td id="price-SGER">Loading...</td><td>525</td><td>315</td><td class="gain">Buy</td></tr>
+      <tr><td>DRMA</td><td id="price-DRMA">Loading...</td><td>1.470</td><td>882</td><td class="gain">Buy</td></tr>
+      <tr><td>IFSH</td><td id="price-IFSH">Loading...</td><td>1.215</td><td>729</td><td class="gain">Buy</td></tr>
+      <tr><td>BMTR</td><td id="price-BMTR">Loading...</td><td>210</td><td>126</td><td class="gain">Hold</td></tr>
+      <tr><td>DILD</td><td id="price-DILD">Loading...</td><td>219</td><td>131</td><td class="gain">Buy</td></tr>
+      <tr><td>GJTL</td><td id="price-GJTL">Loading...</td><td>1.598</td><td>958</td><td class="gain">Hold</td></tr>
+      <tr><td>CFIN</td><td id="price-CFIN">Loading...</td><td>480</td><td>288</td><td class="gain">Buy</td></tr>
+      <tr><td>ABMM</td><td id="price-ABMM">Loading...</td><td>4.620</td><td>2.772</td><td class="gain">Hold</td></tr>
+    </tbody>
+  </table>
+</body>
+</html>
+"""
+
+with open(file_path, "w", encoding="utf-8") as f:
+    f.write(html_content)
+
+file_path
